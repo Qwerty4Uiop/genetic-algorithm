@@ -19,6 +19,8 @@ defmodule Ga.Mixfile do
 
   defp deps do
     [
+      {:httpotion, "~> 3.0.2"},
+      {:poison, "~> 3.1"}
     ]
   end
 end

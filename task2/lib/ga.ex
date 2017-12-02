@@ -1,4 +1,6 @@
 defmodule GA do
+  @host "https://cit-home1.herokuapp.com/api/ga_homework"
+  @request_headers ["Content-Type": "application/json"]
   @population_size 200
 
   def read_file do
@@ -11,7 +13,9 @@ defmodule GA do
     sorted_items = items |> Enum.with_index(1) |> Enum.sort_by(&(Enum.at(elem(&1, 0), 2)), &>=/2) |> List.to_tuple
     init_population = initial_population(sorted_items, carrying, capacity) |> fitness_all(items, carrying, capacity)
     result_population = life_cycle(init_population, items, carrying, capacity, 1)
-    Enum.at(result_population, 0)
+    best_individual = Enum.at(result_population, 0)
+
+    Map.new([{"1", elem(File.read("../task1/result.txt"), 1) |> Poison.decode!}, {"2", to_map(best_individual, items)}]) |> Poison.encode!
   end
 
   def life_cycle(population, items, carrying, capacity, generation_number) do
@@ -118,5 +122,25 @@ defmodule GA do
 
   def check(new_population, old_population) do
     if(abs(elem(Enum.at(new_population, 0), 0) / elem(Enum.at(old_population, 0), 0) - 1) < 0.1, do: true, else: false)
+  end
+
+  def items_decode(items) do
+    items
+    |> Enum.zip(1..Enum.count(items))
+    |> Enum.reduce([], fn x, acc -> if(elem(x, 0) == 1, do: acc ++ [elem(x, 1)], else: acc) end)
+  end
+
+  def to_map(individual, items) do
+    {weight, volume} = summary(individual, items)
+    Map.new
+    |> Map.put("value", round(elem(individual, 0)))
+    |> Map.put("items", items_decode(elem(individual, 1)))
+    |> Map.put("weight", round(weight))
+    |> Map.put("volume", round(volume))
+  end
+
+  def send_request() do
+    HTTPotion.start
+    HTTPotion.post(@host, [body: main_process(), headers: @request_headers])
   end
 end
