@@ -27,10 +27,13 @@ defmodule GA do
   end
 
   def create_individual(items, index, carrying, capacity, individual) do
-    if index < tuple_size(items) and
-       summary_carrying(individual ++ [elem(items, index)]) < carrying and
-       summary_capacity(individual ++ [elem(items, index)]) < capacity do
+    if index < tuple_size(items) do
+      if summary_carrying(individual ++ [elem(items, index)]) <= carrying and
+         summary_capacity(individual ++ [elem(items, index)]) <= capacity do
           create_individual(items, index + 1, carrying, capacity, individual ++ [elem(items, index)])
+      else
+        create_individual(items, index + 1, carrying, capacity, individual)
+      end
     else
       individual
     end
