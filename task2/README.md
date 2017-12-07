@@ -1,3 +1,5 @@
+# Installing
+[Install Elixir](http://elixir-lang.github.io/install.html)
 # Running
 ```
 $ mix deps.get
